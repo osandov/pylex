@@ -4,9 +4,10 @@ from pylex.automaton import Automaton, AutomatonState
 
 
 class DFA(Automaton):
-    """
-    A deterministic finite automaton. Each state has only a single transition
-    for each symbol and epsilon transitions are not allowed.
+    """A deterministic finite automaton.
+
+    Each state has only a single transition for each symbol and epsilon
+    transitions are not allowed.
 
     """
 
@@ -14,8 +15,7 @@ class DFA(Automaton):
         super().__init__(initial)
 
 class DFAState(AutomatonState):
-    """
-    A state in a deterministic finite automaton.
+    """A state in a deterministic finite automaton.
 
     Attributes:
     transitions -- A set of outgoing transitions from this state represented as

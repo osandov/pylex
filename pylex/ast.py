@@ -7,8 +7,7 @@ class AST:
     """Node in a regular expression abstract syntax tree."""
 
     def to_nfa(self, accepting_id=1):
-        """
-        Convert this AST to an NFA.
+        """Convert this AST to an NFA.
 
         Arguments:
         accepting_id -- The ID of the accepting state. Defaults to 1.
@@ -173,8 +172,7 @@ class ConcatenationAST(AST):
 
 
 def asts_to_nfa(asts):
-    """
-    Convert a list of ASTs to an NFA.
+    """Convert a list of ASTs to an NFA.
 
     Thompson's construction is applied to each AST and an initial state is
     created with epsilon transitions to the initial transitions of each

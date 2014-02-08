@@ -34,8 +34,7 @@ class Automaton:
         print('}', file=file)
 
 class AutomatonState:
-    """
-    A state in a finite automaton storing a set of transitions to other
+    """A state in a finite automaton storing a set of transitions to other
     states.
 
     Attributes:
@@ -54,10 +53,7 @@ class AutomatonState:
         self.transitions = {}
 
     def _all_transitions(self):
-        """
-        Return a flat set of all transitions from this set.
-
-        """
+        """Return a flat set of all transitions from this set."""
 
         raise NotImplementedError
 
@@ -77,7 +73,12 @@ class AutomatonState:
             seen[self] = len(seen)
         index = seen[self]
 
-        print('    S{0} [label = <s<sub>{0}</sub>>, shape = circle'.format(index),
+        if self.accepting:
+            subscript = '{},{}'.format(index, self.accepting)
+        else:
+            subscript = index
+
+        print('    S{} [label = <s<sub>{}</sub>>, shape = circle'.format(index, subscript),
               file=file, end='')
 
         if self.accepting:

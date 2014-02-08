@@ -16,9 +16,11 @@ def main():
                         help='emit a log of lexed tokens to a specified file')
     parser.add_argument('-a', '--ast', type=argparse.FileType('w'), metavar='FILE',
                         help='emit the parsed regex ASTs to a specified file')
-    parser.add_argument('-n', '--nfa', type=argparse.FileType('w'),
-                        metavar='FILE', default=sys.stdout,
+    parser.add_argument('-n', '--nfa', type=argparse.FileType('w'), metavar='FILE',
                         help='write the NFA for Graphviz dot rendering')
+    parser.add_argument('-d', '--dfa', type=argparse.FileType('w'),
+                        metavar='FILE', default=sys.stdout,
+                        help='write the DFA for Graphviz dot rendering')
 
     args = parser.parse_args()
 
@@ -31,7 +33,11 @@ def main():
             print(ast, file=args.ast)
 
     nfa = asts_to_nfa(asts)
-    nfa.print_graphviz(args.nfa)
+    if args.nfa:
+        nfa.print_graphviz(args.nfa)
+
+    dfa = nfa.to_dfa()
+    dfa.print_graphviz(args.dfa)
 
     scanner.close()
 

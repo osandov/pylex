@@ -28,8 +28,7 @@ class Scanner:
         self._log_file = log_file
 
     def close(self):
-        """
-        Close the input file.
+        """Close the input file.
 
         The scanner may no longer be used. If the scanner contains a string, do
         nothing.
@@ -43,8 +42,7 @@ class Scanner:
         self._input = None
 
     def lex(self):
-        """
-        Lex a single token from the input.
+        """Lex a single token from the input.
 
         If the file is at EOF or the entire string has been consumed, returns
         an EOF token.
