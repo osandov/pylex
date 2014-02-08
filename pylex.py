@@ -4,7 +4,8 @@ import argparse
 import doctest
 import sys
 
-from pylex.scanner import Scanner, Token
+from pylex.scanner import Scanner
+from pylex.token import Token
 
 
 def main():
