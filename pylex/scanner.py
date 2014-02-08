@@ -4,7 +4,7 @@ from pylex.token import Token
 
 
 class Scanner:
-    """A scanner (a.k.a. lexer) over a file."""
+    """A regular expression scanner (a.k.a. lexer)."""
 
     _char_to_category = {
         '': Token.EOF,
@@ -15,38 +15,50 @@ class Scanner:
         ')': Token.RPAREN,
     }
 
-    def __init__(self, file, log_file=None):
-        """Create a new scanner over a file.
+    def __init__(self, input, log_file=None):
+        """Create a new scanner over a file or string.
 
         Arguments:
-        file -- The file over which to scan.
+        input -- Either a file or a string over which to scan.
         log_file -- An optional file to which a log of lexed tokens is emitted.
 
         """
 
-        self._file = file
+        self._input = input
         self._log_file = log_file
 
     def close(self):
-        """Close the input file. The scanner may no longer be used."""
-        self._file.close()
+        """
+        Close the input file. The scanner may no longer be used. If the scanner
+        contains a string, do nothing.
+
+        """
+
+        try:
+            self._input.close()
+        except AttributeError:
+            pass
+        self._input = None
 
     def lex(self):
         """
-        Lex a single token from the input file. If the file is at EOF, returns
-        an EOF token.
+        Lex a single token from the input. If the file is at EOF or the entire
+        string has been consumed, returns an EOF token.
 
         >>> scanner = Scanner(open('/dev/null', 'r'))
         >>> scanner.lex()
         Token(EOF)
         >>> scanner.close()
-        >>> scanner = Scanner(open('/dev/zero', 'r'))
-        >>> scanner.lex()
-        Token(SYMBOL, '\\x00')
-        >>> scanner.close()
+        >>> scanner = Scanner('a\\n')
+        >>> [scanner.lex() for i in range(3)]
+        [Token(SYMBOL, 'a'), Token(EOL), Token(EOF)]
         """
 
-        c = self._file.read(1)
+        try:
+            c = self._input.read(1)
+        except AttributeError:
+            c, self._input = self._input[0:1], self._input[1:]
+
         token = Token(self._char_to_category.get(c, Token.SYMBOL), c)
 
         if self._log_file:
