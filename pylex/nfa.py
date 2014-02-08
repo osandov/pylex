@@ -1,5 +1,6 @@
 """Nondeterministic finite automaton class."""
 
+from pylex import SIGMA
 from pylex.automaton import Automaton, AutomatonState
 
 
@@ -37,30 +38,20 @@ class NFA(Automaton):
         while worklist:
             q = worklist.pop()
 
-            for symbol in NFA._outgoing_symbols(q):
+            for symbol in SIGMA:
                 t = NFA._delta_closure(q, symbol)
 
-                try:
-                    dfa_state = Q[t]
-                except KeyError:
-                    dfa_state = DFAState(NFA._configuration_accepting(t))
-                    Q[t] = dfa_state
-                    worklist.append(t)
+                if t:
+                    try:
+                        dfa_state = Q[t]
+                    except KeyError:
+                        dfa_state = DFAState(NFA._configuration_accepting(t))
+                        Q[t] = dfa_state
+                        worklist.append(t)
 
-                Q[q].add_transition(symbol, dfa_state)
+                    Q[q].add_transition(symbol, dfa_state)
 
         return DFA(Q[q0])
-
-    @staticmethod
-    def _outgoing_symbols(q):
-        """Return all symbols outgoing from this configuration."""
-
-        symbols = set.union(*(set(state.transitions) for state in q))
-        try:
-            symbols.remove(None)
-        except KeyError:
-            pass
-        return symbols
 
     @staticmethod
     def _delta_closure(q, c):
@@ -71,7 +62,6 @@ class NFA(Automaton):
             for target in state.transitions.get(c, set()):
                 delta_closure |= target.epsilon_closure()
 
-        assert(delta_closure)
         return frozenset(delta_closure)
 
     @staticmethod

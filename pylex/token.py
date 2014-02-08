@@ -1,5 +1,7 @@
 """Token (lexeme) class."""
 
+from pylex import SIGMA
+
 
 class Token:
     """A token (a.k.a. lexeme) in a regular expression.
@@ -47,7 +49,7 @@ class Token:
         """
         self.category = category
         if self.category == Token.SYMBOL:
-            assert symbol and len(symbol) == 1
+            assert len(symbol) == 1 and symbol in SIGMA
             self.symbol = symbol
 
     def is_end(self):
