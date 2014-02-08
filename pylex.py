@@ -4,23 +4,27 @@ import argparse
 import doctest
 import sys
 
+from pylex.parser import Parser
 from pylex.scanner import Scanner
-from pylex.token import Token
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description='Generate programs for scanning of text.')
+    parser = argparse.ArgumentParser(description='Generate programs for scanning of text.')
 
-    parser.add_argument('-l', '--lex', type=argparse.FileType('w'),
-                        metavar='FILE', default=sys.stdout,
+    parser.add_argument('-l', '--lex', type=argparse.FileType('w'), metavar='FILE',
                         help='emit a log of lexed tokens to a specified file')
+    parser.add_argument('-a', '--ast', type=argparse.FileType('w'),
+                        metavar='FILE', default=sys.stdout,
+                        help='emit the parsed regex ASTs to a specified file')
 
     args = parser.parse_args()
 
     scanner = Scanner(sys.stdin, args.lex)
-    while scanner.lex().category != Token.EOF:
-        pass
+    parser = Parser(scanner)
+
+    for ast in parser.parse_top_level():
+        print(ast, file=args.ast)
+
     scanner.close()
 
 if __name__ == '__main__':

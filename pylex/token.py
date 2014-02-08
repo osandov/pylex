@@ -1,4 +1,4 @@
-"""Token (lexeme) type."""
+"""Token (lexeme) class."""
 
 
 class Token:
@@ -49,6 +49,11 @@ class Token:
         if self.category == Token.SYMBOL:
             assert symbol and len(symbol) == 1
             self.symbol = symbol
+
+    def is_end(self):
+        """Return whether this token is either an EOF or EOL token."""
+
+        return self.category == Token.EOF or self.category == Token.EOL
 
     def __repr__(self):
         if self.category == Token.SYMBOL:

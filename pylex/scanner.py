@@ -62,7 +62,7 @@ class Scanner:
         token = Token(self._char_to_category.get(c, Token.SYMBOL), c)
 
         if self._log_file:
-            end = '\n' if token.category in [Token.EOL, Token.EOF] else ' '
+            end = '\n' if token.is_end() else ' '
             print(token, file=self._log_file, end=end)
 
         return token
