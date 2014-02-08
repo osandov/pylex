@@ -29,8 +29,10 @@ class Scanner:
 
     def close(self):
         """
-        Close the input file. The scanner may no longer be used. If the scanner
-        contains a string, do nothing.
+        Close the input file.
+
+        The scanner may no longer be used. If the scanner contains a string, do
+        nothing.
 
         """
 
@@ -42,8 +44,10 @@ class Scanner:
 
     def lex(self):
         """
-        Lex a single token from the input. If the file is at EOF or the entire
-        string has been consumed, returns an EOF token.
+        Lex a single token from the input.
+
+        If the file is at EOF or the entire string has been consumed, returns
+        an EOF token.
 
         >>> scanner = Scanner(open('/dev/null', 'r'))
         >>> scanner.lex()
