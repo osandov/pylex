@@ -26,6 +26,9 @@ class DFAState(AutomatonState):
     def __init__(self, accepting=None):
         super().__init__(accepting)
 
+    def _all_transitions(self):
+        return set(self.transitions.items())
+
     def add_transition(self, symbol, to):
         """Add a transition to this state. 
 

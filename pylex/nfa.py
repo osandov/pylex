@@ -28,6 +28,12 @@ class NFAState(AutomatonState):
     def __init__(self, accepting=None):
         super().__init__(accepting)
 
+    def _all_transitions(self):
+        transitions = set()
+        for symbol, targets in self.transitions.items():
+            transitions |= {(symbol, target) for target in targets}
+        return transitions
+
     def add_transition(self, symbol, to):
         """Add a transition to this state. 
 
