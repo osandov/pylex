@@ -1,7 +1,7 @@
 """Syntactic analysis phase of the regular expression compiler."""
 
 from pylex.ast import SymbolAST, KleeneAST, AlternationAST, ConcatenationAST
-from pylex.scanner import Scanner
+from pylex.rescanner import RegexScanner
 from pylex.token import Token
 
 
@@ -11,7 +11,7 @@ class ParsingError(Exception):
     pass
 
 
-class Parser:
+class RegexParser:
     """A regular expression parser."""
 
     def __init__(self, scanner):
@@ -38,30 +38,30 @@ class Parser:
         Raises:
         ParsingError -- If an error was encountered parsing the input.
 
-        >>> Parser(Scanner('')).parse_top_level()
+        >>> RegexParser(RegexScanner('')).parse_top_level()
         []
-        >>> Parser(Scanner('\\n\\n')).parse_top_level()
+        >>> RegexParser(RegexScanner('\\n\\n')).parse_top_level()
         []
-        >>> Parser(Scanner('A\\n((B))\\nC*')).parse_top_level()
+        >>> RegexParser(RegexScanner('A\\n((B))\\nC*')).parse_top_level()
         [SymbolAST('A'), SymbolAST('B'), KleeneAST(SymbolAST('C'))]
-        >>> Parser(Scanner('XYZ*')).parse_top_level()
+        >>> RegexParser(RegexScanner('XYZ*')).parse_top_level()
         [ConcatenationAST(SymbolAST('X'), ConcatenationAST(SymbolAST('Y'), KleeneAST(SymbolAST('Z'))))]
-        >>> Parser(Scanner('P|Q|R')).parse_top_level()
+        >>> RegexParser(RegexScanner('P|Q|R')).parse_top_level()
         [AlternationAST(SymbolAST('P'), AlternationAST(SymbolAST('Q'), SymbolAST('R')))]
-        >>> Parser(Scanner('ab|c')).parse_top_level()
+        >>> RegexParser(RegexScanner('ab|c')).parse_top_level()
         [AlternationAST(ConcatenationAST(SymbolAST('a'), SymbolAST('b')), SymbolAST('c'))]
-        >>> Parser(Scanner('(A')).parse_top_level()
+        >>> RegexParser(RegexScanner('(A')).parse_top_level()
         Traceback (most recent call last):
             ...
-        parser.ParsingError: unmatched parentheses
-        >>> Parser(Scanner('()')).parse_top_level()
+        reparser.ParsingError: unmatched parentheses
+        >>> RegexParser(RegexScanner('()')).parse_top_level()
         Traceback (most recent call last):
             ...
-        parser.ParsingError: expected regex term
-        >>> Parser(Scanner('O**')).parse_top_level()
+        reparser.ParsingError: expected regex term
+        >>> RegexParser(RegexScanner('O**')).parse_top_level()
         Traceback (most recent call last):
             ...
-        parser.ParsingError: junk after regex
+        reparser.ParsingError: junk after regex
         """
 
         asts = []

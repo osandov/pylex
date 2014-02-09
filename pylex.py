@@ -5,8 +5,8 @@ import doctest
 import sys
 
 from pylex.ast import asts_to_nfa
-from pylex.parser import Parser
-from pylex.scanner import Scanner
+from pylex.reparser import RegexParser
+from pylex.rescanner import RegexScanner
 
 
 def main():
@@ -25,10 +25,10 @@ def main():
 
     args = parser.parse_args()
 
-    scanner = Scanner(sys.stdin, args.lex)
-    parser = Parser(scanner)
+    rescanner = RegexScanner(sys.stdin, args.lex)
+    reparser = RegexParser(rescanner)
 
-    asts = parser.parse_top_level()
+    asts = reparser.parse_top_level()
     for ast in asts:
         if args.ast:
             print(ast, file=args.ast)
@@ -45,7 +45,7 @@ def main():
     if args.min_dfa:
         min_dfa.print_graphviz(args.min_dfa)
 
-    scanner.close()
+    rescanner.close()
 
 if __name__ == '__main__':
     main()

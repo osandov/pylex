@@ -3,7 +3,7 @@
 from pylex.token import Token
 
 
-class Scanner:
+class RegexScanner:
     """A regular expression scanner (a.k.a. lexer)."""
 
     _char_to_category = {
@@ -47,11 +47,11 @@ class Scanner:
         If the file is at EOF or the entire string has been consumed, returns
         an EOF token.
 
-        >>> scanner = Scanner(open('/dev/null', 'r'))
+        >>> scanner = RegexScanner(open('/dev/null', 'r'))
         >>> scanner.lex()
         Token(EOF)
         >>> scanner.close()
-        >>> scanner = Scanner('a\\n')
+        >>> scanner = RegexScanner('a\\n')
         >>> [scanner.lex() for i in range(3)]
         [Token(SYMBOL, 'a'), Token(EOL), Token(EOF)]
         """
