@@ -33,6 +33,7 @@ class Automaton:
 
         print('}', file=file)
 
+
 class AutomatonState:
     """A state in a finite automaton storing a set of transitions to other
     states.
@@ -43,7 +44,7 @@ class AutomatonState:
     transitions -- A set of outgoing transitions from this state represented
     as a dictionary with character keys. The values depend on the type of
     automaton (deterministic vs nondeterministic).
-    
+
     """
 
     def __init__(self, accepting=None):
@@ -91,6 +92,6 @@ class AutomatonState:
             target_index = seen[target]
 
             if symbol is None:
-                symbol = '\u03b5'
+                symbol = '\u03b5'  # Lower case epsilon
             print('    S{} -> S{} [label = "{}"];'.format(index, target_index, symbol),
                   file=file)
