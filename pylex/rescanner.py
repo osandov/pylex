@@ -15,6 +15,16 @@ class RegexScanner:
         ')': Token.RPAREN,
     }
 
+    _escape_sequence = {
+        'a': '\a',
+        'b': '\b',
+        't': '\t',
+        'n': '\n',
+        'v': '\v',
+        'f': '\f',
+        'r': '\r',
+    }
+
     def __init__(self, input, log_file=None):
         """Create a new scanner over a file or string.
 
@@ -41,6 +51,13 @@ class RegexScanner:
             pass
         self._input = None
 
+    def _getc(self):
+        try:
+            c = self._input.read(1)
+        except AttributeError:
+            c, self._input = self._input[0:1], self._input[1:]
+        return c
+
     def lex(self):
         """Lex a single token from the input.
 
@@ -56,12 +73,18 @@ class RegexScanner:
         [Token(SYMBOL, 'a'), Token(EOL), Token(EOF)]
         """
 
-        try:
-            c = self._input.read(1)
-        except AttributeError:
-            c, self._input = self._input[0:1], self._input[1:]
+        c = self._getc()
 
-        token = Token(self._char_to_category.get(c, Token.SYMBOL), c)
+        if c == '\\':
+            c = self._getc()
+            if c == '':
+                token = Token(Token.SYMBOL, '\\')
+            elif c in self._escape_sequence:
+                token = Token(Token.SYMBOL, self._escape_sequence[c])
+            else:
+                token = Token(Token.SYMBOL, c)
+        else:
+            token = Token(self._char_to_category.get(c, Token.SYMBOL), c)
 
         if self._log_file:
             end = '\n' if token.is_end() else ' '

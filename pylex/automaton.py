@@ -92,6 +92,8 @@ class AutomatonState:
             target_index = seen[target]
 
             if symbol is None:
-                symbol = '\u03b5'  # Lower case epsilon
-            print('    S{} -> S{} [label = "{}"];'.format(index, target_index, symbol),
+                label = '\u03b5'  # Lower case epsilon
+            else:
+                label = repr(symbol).replace('\\', '\\\\')  # Escape slashes
+            print('    S{} -> S{} [label = "{}"];'.format(index, target_index, label),
                   file=file)
