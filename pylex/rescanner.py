@@ -10,6 +10,7 @@ class RegexScanner:
         '': Token.EOF,
         '\n': Token.EOL,
         '*': Token.STAR,
+        '+': Token.PLUS,
         '|': Token.PIPE,
         '(': Token.LPAREN,
         ')': Token.RPAREN,

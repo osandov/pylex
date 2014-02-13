@@ -24,7 +24,8 @@ Each regular expression in the list appears on its own line; each line
 corresponds to a separate syntactic category.
 
 The regular expression syntax is very minimal: it only includes grouping
-(`(``)`), the Kleene closure (`*`), concatenation, and alternation/union (`|`).
+(`(``)`), the Kleene closure (`*`), the positive closure (`+`), concatenation,
+and alternation/union (`|`).
 
 Flags can be passed to capture intermediate stages of the regular expression
 compilation; see `pylex --help` for details. Intermediate finite automata can

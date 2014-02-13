@@ -11,6 +11,7 @@ class Token:
         EOF    -- End of file
         EOL    -- Newline '\\n'
         STAR   -- Asterisk '*'
+        PLUS   -- Plus '+'
         PIPE   -- Pipe '|'
         LPAREN -- Left parentheses '('
         RPAREN -- Right parentheses ')'
@@ -23,15 +24,17 @@ class Token:
     EOF = 0
     EOL = 1
     STAR = 2
-    PIPE = 3
-    LPAREN = 4
-    RPAREN = 5
-    SYMBOL = 6
+    PLUS = 3
+    PIPE = 4
+    LPAREN = 5
+    RPAREN = 6
+    SYMBOL = 7
 
     _category_to_str = {
         EOF: "EOF",
         EOL: "EOL",
         STAR: "STAR",
+        PLUS: "PLUS",
         PIPE: "PIPE",
         LPAREN: "LPAREN",
         RPAREN: "RPAREN",

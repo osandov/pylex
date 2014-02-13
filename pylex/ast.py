@@ -96,6 +96,36 @@ class KleeneAST(AST):
         return 'KleeneAST({})'.format(repr(self.operand))
 
 
+class PositiveAST(AST):
+    """AST node for the positive closure.
+
+    Attributes:
+    operand -- Operand of the closure.
+
+    """
+
+    def __init__(self, operand):
+        """Create a new positive closure AST node.
+
+        Arguments:
+        operand -- AST operand of the closure.
+
+        """
+
+        super().__init__()
+        self.operand = operand
+
+    def _thompson(self):
+        (initial, accepting) = self.operand._thompson()
+
+        accepting.add_transition(None, initial)
+
+        return (initial, accepting)
+
+    def __repr__(self):
+        return 'PositiveAST({})'.format(repr(self.operand))
+
+
 class AlternationAST(AST):
     """Alternation (a.k.a. union) of two regular expressions.
 

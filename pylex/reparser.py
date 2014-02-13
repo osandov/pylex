@@ -1,6 +1,6 @@
 """Syntactic analysis phase of the regular expression compiler."""
 
-from pylex.ast import SymbolAST, KleeneAST, AlternationAST, ConcatenationAST
+from pylex.ast import SymbolAST, KleeneAST, PositiveAST, AlternationAST, ConcatenationAST
 from pylex.rescanner import RegexScanner
 from pylex.token import Token
 
@@ -118,8 +118,8 @@ class RegexParser:
 
         return ast
 
-    def _parse_kleene(self):
-        """<kleene> ::= <term> | <term> '*'"""
+    def _parse_closure(self):
+        """<closure> ::= <term> | <term> '*' | <term> '+'"""
 
         ast = self._parse_term()
 
@@ -127,13 +127,17 @@ class RegexParser:
             ast = KleeneAST(ast)
             # Eat the asterisk.
             self._consume_token()
+        elif self._current_token.category == Token.PLUS:
+            ast = PositiveAST(ast)
+            # Eat the plus.
+            self._consume_token()
 
         return ast
 
     def _parse_concatenation(self):
-        """<concatenation> ::= <kleene> | <kleene> <concatenation>"""
+        """<concatenation> ::= <closure> | <closure> <concatenation>"""
 
-        lhs = self._parse_kleene()
+        lhs = self._parse_closure()
 
         if self._current_token.category in [Token.SYMBOL, Token.LPAREN]:
             rhs = self._parse_concatenation()
