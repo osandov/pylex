@@ -1,1 +1,4 @@
 __pycache__
+.o
+examples/build
+examples/pylex.c

@@ -7,6 +7,7 @@ import sys
 from pylex.ast import asts_to_nfa
 from pylex.reparser import RegexParser
 from pylex.rescanner import RegexScanner
+from pylex.scangen import TableDrivenScannerGenerator
 
 
 def main():
@@ -22,6 +23,9 @@ def main():
                         help='write the DFA for Graphviz dot rendering')
     parser.add_argument('-m', '--min-dfa', type=argparse.FileType('w'), metavar='FILE',
                         help='write the minimized DFA for Graphviz dot rendering')
+    parser.add_argument('-c', '--c-source', type=argparse.FileType('w'),
+                        metavar='FILE', default=sys.stdout,
+                        help='write the C source code for a scanner (defaults to stdout)')
 
     args = parser.parse_args()
 
@@ -44,6 +48,9 @@ def main():
     min_dfa = dfa.minimized()
     if args.min_dfa:
         min_dfa.print_graphviz(args.min_dfa)
+
+    scangen = TableDrivenScannerGenerator(min_dfa)
+    args.c_source.write(scangen.c_source())
 
     rescanner.close()
 

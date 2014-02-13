@@ -21,6 +21,11 @@ class DFA(Automaton):
 
         return Hopcroft(self)()
 
+    def to_scanner(self):
+        """Return a scanner which recognizes the same language as this DFA."""
+
+        pass
+
 
 class DFAState(AutomatonState):
     """A state in a deterministic finite automaton.
