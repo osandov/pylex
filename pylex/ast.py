@@ -121,78 +121,88 @@ class PositiveAST(AST):
 
 
 class AlternationAST(AST):
-    """Alternation (a.k.a. union) of two regular expressions.
+    """Alternation (a.k.a. union) of two or more regular expressions.
 
     Attributes:
-    lhs -- The left-hand side of the operator.
-    rhs -- The right-hand side of the operator.
+    operands -- Tuple containing the alternated regular expressions.
 
     """
 
-    def __init__(self, lhs, rhs):
+    def __init__(self, *operands):
         """Create a new alternation AST node.
 
         Arguments:
-        lhs -- Left-hand side AST.
-        rhs -- Right-hand side AST.
+        operands -- Two or more children AST nodes.
 
         """
 
         super().__init__()
-        self.lhs = lhs
-        self.rhs = rhs
+
+        if len(operands) < 2:
+            raise ValueError('must alternate two or more operands')
+
+        self.operands = ()
+        for ast in operands:
+            if isinstance(ast, AlternationAST):
+                self.operands += ast.operands
+            else:
+                self.operands += (ast,)
 
     def _thompson(self):
         initial = NFAState()
         accepting = NFAState()
 
-        (linitial, laccepting) = self.lhs._thompson()
-        (rinitial, raccepting) = self.rhs._thompson()
-
-        initial.add_transition(None, linitial)
-        initial.add_transition(None, rinitial)
-
-        laccepting.add_transition(None, accepting)
-        raccepting.add_transition(None, accepting)
+        for ast in self.operands:
+            (alternate_initial, alternate_accepting) = ast._thompson()
+            initial.add_transition(None, alternate_initial)
+            alternate_accepting.add_transition(None, accepting)
 
         return (initial, accepting)
 
     def __repr__(self):
-        return 'AlternationAST({}, {})'.format(repr(self.lhs), repr(self.rhs))
+        return 'AlternationAST({})'.format(', '.join(repr(o) for o in self.operands))
 
 
 class ConcatenationAST(AST):
-    """Concatenation of two regular expressions.
+    """Concatenation of two or more regular expressions.
 
     Attributes:
-    lhs -- The left-hand side of the operator.
-    rhs -- The right-hand side of the operator.
+    operands -- Tuple containing the concatenated regular expressions.
 
     """
 
-    def __init__(self, lhs, rhs):
+    def __init__(self, *operands):
         """Create a new concatenation AST node.
 
         Arguments:
-        lhs -- Left-hand side AST.
-        rhs -- Right-hand side AST.
+        operands -- Two or more children AST nodes.
 
         """
 
         super().__init__()
-        self.lhs = lhs
-        self.rhs = rhs
+
+        if len(operands) < 2:
+            raise ValueError('must concatenate two or more operands')
+
+        self.operands = ()
+        for ast in operands:
+            if isinstance(ast, ConcatenationAST):
+                self.operands += ast.operands
+            else:
+                self.operands += (ast,)
 
     def _thompson(self):
-        (linitial, laccepting) = self.lhs._thompson()
-        (rinitial, raccepting) = self.rhs._thompson()
+        (initial, accepting) = self.operands[0]._thompson()
 
-        laccepting.add_transition(None, rinitial)
+        for i in range(1, len(self.operands)):
+            (next_initial, next_accepting) = self.operands[i]._thompson()
+            accepting.add_transition(None, next_initial)
+            accepting = next_accepting
 
-        return (linitial, raccepting)
+        return (initial, accepting)
 
     def __repr__(self):
-        return 'ConcatenationAST({}, {})'.format(repr(self.lhs), repr(self.rhs))
+        return 'ConcatenationAST({})'.format(', '.join(repr(o) for o in self.operands))
 
 
 def asts_to_nfa(asts):
