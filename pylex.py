@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Main pylex driver program."""
 
 import argparse
