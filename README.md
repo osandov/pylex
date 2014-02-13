@@ -29,3 +29,11 @@ The regular expression syntax is very minimal: it only includes grouping
 Flags can be passed to capture intermediate stages of the regular expression
 compilation; see `pylex --help` for details. Intermediate finite automata can
 be printed in Graphviz DOT language for rendering.
+
+Generated Scanner
+-----------------
+
+The generated C scanner contains one public function, `pylex`, which is
+documented in `pylex/scangen.py`. An example client driver is available in the
+`examples` directory. Just run `pylex -c examples/pylex.c` to generate the
+scanner and run `make` in the `examples` directory.

@@ -11,6 +11,9 @@ $(BUILD)/%.o: %.c
 	$(dir_guard)
 	$(CC) $(ALL_CFLAGS) -o $@ -c $<
 
+pylex.c:
+	$(error "Generate pylex.c with pylex.py")
+
 clean:
 	rm -rf $(BUILD)
 
