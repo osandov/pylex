@@ -59,6 +59,8 @@ class NFAState(AutomatonState):
         2
         """
 
+        self._ensure_not_numbered()
+
         try:
             # Invalidate the memoized epsilon closure
             del self._epsilon_closure

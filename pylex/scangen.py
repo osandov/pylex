@@ -22,26 +22,23 @@ class _ScannerGenerator:
 
         """
 
-        self._table = []
-        self._accepting = []
-        self._states = {}
-        self._create_table(dfa.initial)
-        del self._states
+        self._table = [None] * dfa.num_states
+        self._accepting = [-1] * dfa.num_states
+        self._create_table(dfa.initial, set())
 
-    def _create_table(self, state):
-        if not state in self._states:
-            assert len(self._states) == len(self._table) == len(self._accepting)
-            self._states[state] = len(self._states)
-            self._accepting.append(state.accepting if state.accepting else 0)
-            self._table.append([-1] * NUM_SYMBOLS)
-        index = self._states[state]
+    def _create_table(self, state, seen):
+        if state in seen:
+            return
+        seen.add(state)
+
+        number = state.number
+
+        self._table[state.number] = [-1] * NUM_SYMBOLS
+        self._accepting[state.number] = state.accepting if state.accepting else 0
 
         for (symbol, target) in state.transitions.items():
-            if target not in self._states:
-                self._create_table(target)
-            target_index = self._states[target]
-
-            self._table[index][ord(symbol)] = target_index
+            self._create_table(target, seen)
+            self._table[state.number][ord(symbol)] = target.number
 
     def c_source(self):
         """Return the C source code for the scanner as a string.

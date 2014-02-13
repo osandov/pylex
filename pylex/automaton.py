@@ -6,8 +6,12 @@ import sys
 class Automaton:
     """A finite automaton (a.k.a. finite state machine).
 
+    States which can be reached from the initial state should not be modified
+    once the automaton in constructed.
+
     Attributes:
     initial -- The initial state of this automaton.
+    num_states -- The number of states in this automaton.
 
     """
 
@@ -20,6 +24,27 @@ class Automaton:
         """
 
         self.initial = initial
+        self.num_states = self._number_states(self.initial, 0)
+
+    def _number_states(self, state, next_number):
+        """Number the given state and all states reachable from it.
+
+        Arguments:
+        state -- The state to start with. If it does not already have a number,
+        it will be assigned next_number.
+        next_number -- The number from which to start assigning numbers.
+
+        Returns:
+        The largest number that was assigned, plus one.
+
+        """
+
+        if state.number is None:
+            state.number = next_number
+            next_number += 1
+            for (symbol, target) in state._all_transitions():
+                next_number = self._number_states(target, next_number)
+        return next_number
 
     def print_graphviz(self, file=sys.stdout):
         """Print automaton for Graphviz dot rendering."""
@@ -28,8 +53,8 @@ class Automaton:
         print('    rankdir = LR;', file=file)
         print('    I [style = invis];', file=file)
 
-        print('    I -> S0;', file=file)
-        self.initial._print_graphviz(file, {})
+        print('    I -> S{};'.format(self.initial.number), file=file)
+        self.initial._print_graphviz(file, set())
 
         print('}', file=file)
 
@@ -44,6 +69,8 @@ class AutomatonState:
     transitions -- A set of outgoing transitions from this state represented
     as a dictionary with character keys. The values depend on the type of
     automaton (deterministic vs nondeterministic).
+    number -- If this state is in an automaton, a non-negative integer unique
+    within the automaton, otherwise None.
 
     """
 
@@ -52,11 +79,16 @@ class AutomatonState:
 
         self.accepting = accepting
         self.transitions = {}
+        self.number = None
 
     def _all_transitions(self):
         """Return a flat set of all transitions from this set."""
 
         raise NotImplementedError
+
+    def _ensure_not_numbered(self):
+        if self.number is not None:
+            raise ValueError('cannot modify state in automaton')
 
     def add_transition(self, symbol, to):
         """Add a transition to this state.
@@ -70,16 +102,16 @@ class AutomatonState:
         raise NotImplementedError
 
     def _print_graphviz(self, file, seen):
-        if self not in seen:
-            seen[self] = len(seen)
-        index = seen[self]
+        if self in seen:
+            return
+        seen.add(self)
 
         if self.accepting:
-            subscript = '{},{}'.format(index, self.accepting)
+            subscript = '{},{}'.format(self.number, self.accepting)
         else:
-            subscript = index
+            subscript = self.number
 
-        print('    S{} [label = <s<sub>{}</sub>>, shape = circle'.format(index, subscript),
+        print('    S{} [label = <s<sub>{}</sub>>, shape = circle'.format(self.number, subscript),
               file=file, end='')
 
         if self.accepting:
@@ -87,13 +119,10 @@ class AutomatonState:
         print('];', file=file)
 
         for (symbol, target) in self._all_transitions():
-            if target not in seen:
-                target._print_graphviz(file, seen)
-            target_index = seen[target]
-
+            target._print_graphviz(file, seen)
             if symbol is None:
                 label = '\u03b5'  # Lower case epsilon
             else:
                 label = repr(symbol).replace('\\', '\\\\')  # Escape slashes
-            print('    S{} -> S{} [label = "{}"];'.format(index, target_index, label),
+            print('    S{} -> S{} [label = "{}"];'.format(self.number, target.number, label),
                   file=file)

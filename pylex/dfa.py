@@ -66,6 +66,8 @@ class DFAState(AutomatonState):
         AssertionError: state already contains given transition
         """
 
+        self._ensure_not_numbered()
+
         assert symbol is not None, 'DFA cannot contain epsilon transitions'
         assert symbol not in self.transitions, 'state already contains given transition'
         self.transitions[symbol] = to
