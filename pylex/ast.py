@@ -79,16 +79,10 @@ class KleeneAST(AST):
         self.operand = operand
 
     def _thompson(self):
-        initial = NFAState()
-        accepting = NFAState()
+        (initial, accepting) = self.operand._thompson()
 
-        (oinitial, oaccepting) = self.operand._thompson()
-
-        initial.add_transition(None, oinitial)
-        oaccepting.add_transition(None, accepting)
-
-        oaccepting.add_transition(None, oinitial)
         initial.add_transition(None, accepting)
+        accepting.add_transition(None, initial)
 
         return (initial, accepting)
 
