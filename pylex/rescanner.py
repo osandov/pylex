@@ -1,5 +1,6 @@
 """Lexical analysis phase of the regular expression compiler."""
 
+from pylex import SIGMA
 from pylex.token import Token
 
 
@@ -60,6 +61,14 @@ class RegexScanner:
         self._input = None
 
     def _getc(self):
+        """Read a single character from the input and advance the position of
+        the input.
+
+        Returns:
+        The character read or an empty string on EOF.
+
+        """
+
         try:
             c = self._input.read(1)
         except AttributeError:
@@ -78,6 +87,8 @@ class RegexScanner:
 
         if c == '\\':
             token = self._lex_escape_sequence()
+        elif c == '[':
+            token = self._lex_char_class()
         else:
             token = Token(self._char_to_category.get(c, Token.SYMBOL), c)
 
@@ -100,3 +111,59 @@ class RegexScanner:
             return Token(Token.SYMBOL, self._escape_sequence[c])
         else:
             return Token(Token.SYMBOL, c)
+
+    def _lex_char_class(self):
+        """Lex a character class assuming the opening bracket has already been
+        consumed.
+
+        """
+
+        characters = set()
+        inverted = False
+
+        c = self._getc()
+        if c == '^':
+            inverted = True
+            c = self._getc()
+
+        if c == ']':
+            # If there is a ']' at the beginning of the character class, it is
+            # literal.
+            characters.add(']')
+            c = self._getc()
+
+        range_start = ''
+        prev_c = ''
+
+        while c and c != ']':
+            if c == '-':
+                if prev_c:
+                    range_start = prev_c
+                else:
+                    characters.add('-')
+            else:
+                if range_start:
+                    assert prev_c == '-'
+                    start_i = ord(range_start)
+                    end_i = ord(c)
+                    if end_i < start_i:
+                        raise ScanningError('invalid range end')
+                    range_start = ''
+                    characters.update(chr(c) for c in range(start_i, end_i + 1))
+                else:
+                    characters.add(c)
+            prev_c, c = c, self._getc()
+
+        if not c:
+            raise ScanningError('unmatched [ or [^')
+
+        if prev_c == '-':
+            # Trailing hyphen, literal.
+            if range_start:
+                characters.add(range_start)
+            characters.add('-')
+
+        if inverted:
+            return Token(Token.CHARCLASS, set(SIGMA) - characters)
+        else:
+            return Token(Token.CHARCLASS, characters)
