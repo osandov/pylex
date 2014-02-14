@@ -89,11 +89,21 @@ class RegexParser:
         return self._parse_alternation()
 
     def _parse_term(self):
-        """<term> ::= symbol | <parenthetical>"""
+        """<term> ::= symbol | character-class | <parenthetical>"""
 
         if self._current_token.category == Token.SYMBOL:
             ast = SymbolAST(self._current_token.symbol)
             # Eat the symbol.
+            self._consume_token()
+            return ast
+        if self._current_token.category == Token.CHARCLASS:
+            char_class = self._current_token.char_class
+            if len(char_class) > 1:
+                symbols = (SymbolAST(c) for c in char_class)
+                ast = AlternationAST(*symbols)
+            else:
+                ast = SymbolAST(next(iter(char_class)))
+            # Eat the character class.
             self._consume_token()
             return ast
         elif self._current_token.category == Token.LPAREN:
