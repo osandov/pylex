@@ -3,6 +3,12 @@
 from pylex.token import Token
 
 
+class ScanningError(Exception):
+    """Error encountered while scanning."""
+
+    pass
+
+
 class RegexScanner:
     """A regular expression scanner (a.k.a. lexer)."""
 
@@ -17,6 +23,7 @@ class RegexScanner:
     }
 
     _escape_sequence = {
+        '0': '\0',
         'a': '\a',
         'b': '\b',
         't': '\t',
@@ -65,25 +72,12 @@ class RegexScanner:
         If the file is at EOF or the entire string has been consumed, returns
         an EOF token.
 
-        >>> scanner = RegexScanner(open('/dev/null', 'r'))
-        >>> scanner.lex()
-        Token(EOF)
-        >>> scanner.close()
-        >>> scanner = RegexScanner('a\\n')
-        >>> [scanner.lex() for i in range(3)]
-        [Token(SYMBOL, 'a'), Token(EOL), Token(EOF)]
         """
 
         c = self._getc()
 
         if c == '\\':
-            c = self._getc()
-            if c == '':
-                token = Token(Token.SYMBOL, '\\')
-            elif c in self._escape_sequence:
-                token = Token(Token.SYMBOL, self._escape_sequence[c])
-            else:
-                token = Token(Token.SYMBOL, c)
+            token = self._lex_escape_sequence()
         else:
             token = Token(self._char_to_category.get(c, Token.SYMBOL), c)
 
@@ -92,3 +86,17 @@ class RegexScanner:
             print(token, file=self._log_file, end=end)
 
         return token
+    
+    def _lex_escape_sequence(self):
+        """Lex an escape sequence assuming the backslash has already been
+        consumed.
+
+        """
+
+        c = self._getc()
+        if c == '':
+            raise ScanningError('trailing backslash')
+        elif c in self._escape_sequence:
+            return Token(Token.SYMBOL, self._escape_sequence[c])
+        else:
+            return Token(Token.SYMBOL, c)
